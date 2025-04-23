@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Memory game</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background-color: blueviolet;
+        color: white;
+        font-family: Arial, sans-serif;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+      }
+
+      .gameboard {
+        display: grid;
+        grid-template-columns: repeat(4, 100px);
+        grid-gap: 10px;
+      }
+      .card {
+        width: 100px;
+        height: 100px;
+        background-color: #333;
+        border-radius: 8px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: none;
+      }
+
+      .card.flipped img {
+        display: block;
+      }
+
+      #reset-button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        background-color: blue
+        color: white
+      }
+
+      footer {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>DONT STOP, GET IT GET IT</h1>
+    <div class="gameboard"></div>
+    <button id="reset-button">Reset game</button>
+    <footer>Hi :> i love you btw</footer>
+
+    <script>
+      const imagePaths = [
+        "../practice img/A1.png",
+        "../practice img/B1.png",
+        "../practice img/C1.png",
+        "../practice img/D1.png",
+        "../practice img/E1.png",
+        "../practice img/F1.png",
+        "../practice img/G1.png",
+        "../practice img/H1.png",
+      ];
+
+      let firstCard = null;
+      let secondCard = null;
+      let lockBoard = false;
+
+      function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+      }
+
+      function createBoard() {
+        const board = document.querySelector(".gameboard");
+        board.innerHTML = "";
+
+        const cards = [...imagePaths, ...imagePaths];
+        shuffle(cards);
+
+        cards.forEach((src) => {
+          const cardElement = document.createElement("div");
+          cardElement.classList.add("card");
+          cardElement.dataset.card = src;
+
+          const img = document.createElement("img");
+          img.src = src;
+
+          cardElement.appendChild(img);
+          cardElement.addEventListener("click", flipCard);
+          board.appendChild(cardElement);
+        });
+      }
+
+      function flipCard() {
+        if (lockBoard || this === firstCard) return;
+        this.classList.add("flipped");
+
+        if (!firstCard) {
+          firstCard = this;
+          return;
+        }
+        secondCard = this;
+        checkForMatch();
+      }
+
+      function checkForMatch() {
+        const isMatch = firstCard.dataset.card === secondCard.dataset.card;
+
+        if (isMatch) {
+          disableCards();
+        } else {
+          unflipCards();
+        }
+      }
+      function disableCards() {
+        firstCard.removeEventListener("click", flipCard);
+        secondCard.removeEventListener("click", flipCard);
+        resetBoard();
+      }
+      function unflipCards() {
+        lockBoard = true;
+        setTimeout(() => {
+          firstCard.classList.remove("flipped");
+          secondCard.classList.remove("flipped");
+          resetBoard();
+        }, 1000);
+      }
+
+      function resetBoard() {
+        [firstCard, secondCard, lockBoard] = [null, null, false];
+      }
+
+      document
+        .getElementById("reset-button")
+        .addEventListener("click", createBoard);
+
+      //start the game on load
+      createBoard();
+    </script>
+  </body>
+</html>
